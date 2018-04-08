@@ -21,7 +21,7 @@ cardList = [ "fa fa-diamond",
             "fa fa-bomb",
 ]
 
-// Array where open cards get are stored
+// Array where open cards are stored
 cardListOpen = [];
 
 /*
@@ -76,6 +76,8 @@ function restart() {
     })
 }
 
+restart();
+
 /*
  * set up the event listener for a card. If a card is clicked:
  *  - display the card's symbol (put this functionality in another function that you call from this one)
@@ -86,6 +88,10 @@ function restart() {
  *    + increment the move counter and display it on the page (put this functionality in another function that you call from this one)
  *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
  */
+
+function moveCount() {
+    
+}
 
 function flipCard(item) {
     item.setAttribute("class", "card open show");
@@ -118,14 +124,20 @@ function compareCards(array) {
 
 function evtListener() {
     let cards = document.querySelectorAll('.card');
+    let openCards = document.querySelectorAll('.card open show');
+
+    function cardMagic(target) {
+        flipCard(target);
+        addOpenCard(target);
+        while (cardListOpen.length === 2) {
+            compareCards(cardListOpen);
+        }
+    }
 
     cards.forEach(function(node) {
-        node.addEventListener('click', function() {
-            flipCard(this);
-            addOpenCard(this);
-            while (cardListOpen.length === 2) {
-                compareCards(cardListOpen);
-            }
-        })
+        node.addEventListener('click', cardMagic(node));
+    })
+    openCards.forEach(function(node) {
+        node.removeEventListener('click', cardMagic(node));
     })
 }
