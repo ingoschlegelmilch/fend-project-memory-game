@@ -1,9 +1,28 @@
 /*
  * Create a list that holds all of your cards
  */
-const cardList = document.querySelectorAll('.card');
 
+// Array of cards
+cardList = [ "fa fa-diamond",
+            "fa fa-diamond",                   
+            "fa fa-paper-plane-o",
+            "fa fa-paper-plane-o",
+            "fa fa-anchor",
+            "fa fa-anchor",
+            "fa fa-bolt",
+            "fa fa-bolt",
+            "fa fa-cube",
+            "fa fa-cube",
+            "fa fa-leaf",
+            "fa fa-leaf",
+            "fa fa-bicycle",
+            "fa fa-bicycle",
+            "fa fa-bomb",
+            "fa fa-bomb",
+]
 
+// Array where open cards get are stored
+cardListOpen = [];
 
 /*
  * Display the cards on the page
@@ -27,6 +46,35 @@ function shuffle(array) {
     return array;
 }
 
+// deletes li elements from the ul element
+function clearBoard() {
+    document.querySelector('.deck').innerHTML = "";
+} 
+
+// shuffles the list of cards, loops through each card, creates the right HTML for it
+function createBoard() {
+    shuffle(cardList);
+    cardList.forEach(function(i) {
+           newCard = document.createElement('li');
+           newIcon = document.createElement('i');
+           deck = document.querySelector('.deck');
+    
+           newCard.setAttribute("class", "card");
+           newIcon.setAttribute("class", i);
+           deck.appendChild(newCard);
+           deck.lastChild.appendChild(newIcon);
+    })
+    evtListener();        
+}
+
+function restart() {
+    let reset = document.querySelector('.restart');
+
+    reset.addEventListener('click', function(){
+        clearBoard();
+        createBoard();
+    })
+}
 
 /*
  * set up the event listener for a card. If a card is clicked:
@@ -38,3 +86,46 @@ function shuffle(array) {
  *    + increment the move counter and display it on the page (put this functionality in another function that you call from this one)
  *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
  */
+
+function flipCard(item) {
+    item.setAttribute("class", "card open show");
+}
+
+function addOpenCard(item) {
+    cardListOpen.push(item);
+}
+
+function lockMatch() {
+    cardListOpen[0].setAttribute("class", "card match");
+    cardListOpen[1].setAttribute("class", "card match");
+}
+
+function closeCards() {
+    cardListOpen[0].setAttribute("class", "card");
+    cardListOpen[1].setAttribute("class", "card");
+}
+
+function compareCards(array) {
+    if (array[0] === array[1]) {
+        lockMatch();
+    }
+    else {
+        closeCards();
+    }
+    array.splice(0, 2);
+} 
+
+
+function evtListener() {
+    let cards = document.querySelectorAll('.card');
+
+    cards.forEach(function(node) {
+        node.addEventListener('click', function() {
+            flipCard(this);
+            addOpenCard(this);
+            while (cardListOpen.length === 2) {
+                compareCards(cardListOpen);
+            }
+        })
+    })
+}
