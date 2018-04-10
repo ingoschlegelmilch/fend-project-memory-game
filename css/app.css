@@ -77,13 +77,24 @@ h1 {
 }
 
 .deck .card.match {
-    transform: rotateY(180deg);
+    transform: rotateY(0deg);
+    animation: fadeIn 1s alternate-reverse;
     cursor: default;
     background: #02ccba;
     font-size: 33px;
 }
 
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
 .deck .card.mismatch {
+    transform: rotateY(0deg);
     animation: shake 1s;
     cursor: default;
     background: #ff00aa;
@@ -128,4 +139,9 @@ h1 {
 .score-panel .restart {
     float: right;
     cursor: pointer;
+}
+
+.score-panel .timer {
+    margin: auto;
+    display: inline-block;
 }

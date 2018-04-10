@@ -90,6 +90,19 @@
         }
     }
 
+    function clearTimer() {
+        debug("clearTimer");
+        document.querySelector('.timer').innerHTML = "";
+    }
+
+    function createTimer() {
+        debug("createTimer");
+        clock = document.createElement('div');
+        clock.setAttribute("class", "timer");
+        clock.innerHTML = `0 seconds`;
+
+        document.querySelector('.score-panel').appendChild(clock);
+    }
 
     // shuffles the list of cards, loops through each card, creates the right HTML for it
     function createBoard() {
@@ -117,6 +130,8 @@
             resetMoves();
             clearStars();
             createStars();
+            clearTimer();
+            createTimer();
             createBoard();
         })
     }
@@ -132,19 +147,21 @@
     *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
     */
 
-    function moveCount() {
+   function moveCount() {
         debug("moveCount");
         let count = parseInt(document.querySelector('.moves').innerHTML, 10);
         let x = count + 1;
-        
+    
         document.querySelector('.moves').innerHTML = x;
     }
 
-    function createTimer() {
-        debug("createTimer");
-        clock = document.createElement('div');
-        clock.setAttribute("class", "timer");
-        clock.innerHTML = "0";
+    function time() {
+        setInterval(function() {
+            let secs = parseInt(document.querySelector('.time').innerHTML, 10);
+            let x = secs +1;
+
+            document.querySelector('.timer').innerHTML = `${x} seconds`
+        }, 1000)
     }
 
     function flipCard(item) {
@@ -231,7 +248,8 @@
     function checkWinCondition() {
         debug("checkWinCondition");
         if (cardListMatch.length === 16) {
-            console.log(`Yay! You did it in ${document.querySelector('.moves').innerHTML} Moves!`);
+            window = document.createElement('div');
+            alert(`Yay! You did it in ${document.querySelector('.moves').innerHTML} Moves!`);
         }
     }
 
@@ -257,3 +275,9 @@
     }
 
     restart();
+    createTimer();
+    clearBoard();
+    resetMoves();
+    clearStars();
+    createStars();
+    createBoard();
