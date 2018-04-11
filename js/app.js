@@ -114,11 +114,10 @@
     // Stop running timer and removes it from the DOM
     function clearTimer() {
         debug("clearTimer");
-        let child = document.querySelector('.timer');
-        let parent = document.querySelector('.score-panel');
+        let timer = document.querySelector('.timer');
 
         stopTime();
-        parent.removeChild(child);
+        timer.remove();
     }
 
     // Create timer for the DOM and starts it
@@ -270,16 +269,95 @@
         checkWinCondition();
     }
 
-    // When matching card array has 16 items, stop timer and alert win message containing number of moves and seconds
+    // When matching card array has 16 items, stop timer, create and show modal, empty array of matching cards
     function checkWinCondition() {
         debug("checkWinCondition");
         if (cardListMatch.length === 16) {
             stopTime();
-            window = document.createElement('div');
-            window.setAttribute("class", "")
-
-            alert(`Yay! You did it in ${document.querySelector('.moves').innerHTML} Moves and it took you ${document.querySelector('.timer').innerHTML}!`);
+            createModal();
+            showModal();
+            cardListMatch.splice(0, 50);
         }
+    }
+
+    // Create all elements for modal, set respective classes, content; apply everything to DOM; add event listener to button to restart the game
+    function createModal() {
+        let background = document.createElement('div');
+        let content = document.createElement('div');
+        let span = document.createElement('span');
+        let icon = document.createElement('i');
+        let text1 = document.createElement('p');
+        let text2 = document.createElement('p');
+        let text3 = document.createElement('p');
+        let button = document.createElement('button');
+        let container = document.querySelector('.container');
+
+        background.setAttribute("class", "modal");
+        content.setAttribute("class", "modal-content");
+        span.setAttribute("class", "close");
+        text1.setAttribute("class", "message");
+        text2.setAttribute("class", "message");
+        text3.setAttribute("class", "message");
+        button.setAttribute("type", "button");
+        button.setAttribute("class", "mybtn");
+        icon.setAttribute("class", "fa fa-times");
+        text1.innerHTML = `Congratulations!`;
+        text2.innerHTML = `You did it in ${document.querySelector('.moves').innerHTML} Moves and it took you ${document.querySelector('.timer').innerHTML}!`;
+        text3.innerHTML = `Your star rating was:`
+        button.innerHTML = 'Play again';
+
+        container.appendChild(background);
+        background.appendChild(content);
+        content.appendChild(span);
+        span.appendChild(icon);
+        content.appendChild(text1);
+        content.appendChild(text2);
+        content.appendChild(text3);
+        content.appendChild(button);
+        copyStars();
+        
+        button.addEventListener('click', function() {
+            removeModal();
+            clearBoard();
+            resetMoves();
+            clearStars();
+            createStars();
+            clearTimer();
+            createTimer();
+            createBoard();    
+        })
+        span.firstChild.addEventListener('click', function() {
+            removeModal();
+        })
+    }
+
+    // Get star rating and create matching icons inside modal content
+    function copyStars() {
+        let starList = document.querySelector('.stars').childNodes;
+
+        starList.forEach(function(i) {
+            let content = document.querySelectorAll('.message')[2];
+            let newSpan = document.createElement('span');
+            let newIcon = document.createElement('i');
+    
+            newIcon.setAttribute("class", i.lastChild.className);
+            content.appendChild(newSpan);
+            content.lastChild.appendChild(newIcon);            
+        })
+    }
+
+    // Show modal
+    function showModal() {
+        let modal = document.querySelector('.modal');
+
+        modal.style.display = "block";
+    }
+
+    // Remove the modal element
+    function removeModal() {
+        let modal = document.querySelector('.modal');
+
+        modal.remove();
     }
 
     // When items in open card array dont match, set mismatch class for items, remove event listeners for items
