@@ -1,15 +1,19 @@
     /*
-    * Create a list that holds all of your cards
+    * Section 1: All the things that help create the score panel and the game board
     */
+
+
+    // Fixed interval for timeOut functions
     const TIMEOUT = 1500;
 
+    // Debugging function to see what is computed in which order
     function debug(...args) {
         if (false) {
             console.log(...args);
         }
     };
 
-    // Array of cards
+    // Array of cards used to build the board
     cardList = [ 
         "fa fa-diamond",
         "fa fa-diamond", 
@@ -35,13 +39,6 @@
     // Array where matching cards are stored
     cardListMatch = [];
 
-    /*
-    * Display the cards on the page
-    *   - shuffle the list of cards using the provided "shuffle" method below
-    *   - loop through each card and create its HTML
-    *   - add each card's HTML to the page
-    */
-
     // Shuffle function from http://stackoverflow.com/a/2450976
     function shuffle(array) {
         var currentIndex = array.length, temporaryValue, randomIndex;
@@ -58,12 +55,13 @@
         return array;
     }
 
-    // deletes li elements from the ul element
+    // Delete li elements from the ul element
     function clearBoard() {
         debug("clearBoard");
         document.querySelector('.deck').innerHTML = "";
     }
 
+    // Reset move counter to 0
     function resetMoves() {
         debug("resetMoves");
         count = document.querySelector('.moves');
@@ -71,11 +69,13 @@
         count.innerHTML = "0";
     }
 
+    // Reset star rating
     function clearStars() {
         debug("clearStars");
         document.querySelector('.stars').innerHTML = "";
     }
 
+    // Create full star list
     function createStars() {
         debug("createStars");
 
@@ -90,21 +90,49 @@
         }
     }
 
+    // increment timer and update state
+    function incTime() {
+        debug("incTime");
+        let secs = parseInt(document.querySelector('.timer').innerHTML, 10);
+        let x = secs +1;
+
+        document.querySelector('.timer').innerHTML = `${x} Seconds`;
+    }
+
+    // Start timer
+    function startTime() {
+        debug("startTime")
+        setInterval(incTime, 1000);
+    }
+
+    // Stop timer
+    function stopTime() {
+        debug("stopTime");
+        clearInterval(incTime);
+    }
+
+    // Stop running timer and removes it from the DOM
     function clearTimer() {
         debug("clearTimer");
-        document.querySelector('.timer').innerHTML = "";
+        let child = document.querySelector('.timer');
+        let parent = document.querySelector('.score-panel');
+
+        stopTime();
+        parent.removeChild(child);
     }
 
+    // Create timer for the DOM and starts it
     function createTimer() {
         debug("createTimer");
-        clock = document.createElement('div');
+        clock = document.createElement('span');
         clock.setAttribute("class", "timer");
-        clock.innerHTML = `0 seconds`;
+        clock.innerHTML = "0 Seconds";
 
         document.querySelector('.score-panel').appendChild(clock);
+        startTime();
     }
 
-    // shuffles the list of cards, loops through each card, creates the right HTML for it
+    // Shuffle the list of cards, loop through each card, create HTML for it and add event listeners to all cards
     function createBoard() {
         debug("createBoard");
         shuffle(cardList);
@@ -121,6 +149,7 @@
         evtListener();        
     }
 
+    // Reset card grid, move counter, star rating and timer
     function restart() {
         debug("restart");
         let reset = document.querySelector('.restart');
@@ -136,95 +165,70 @@
         })
     }
 
+
     /*
-    * set up the event listener for a card. If a card is clicked:
-    *  - display the card's symbol (put this functionality in another function that you call from this one)
-    *  - add the card to a *list* of "open" cards (put this functionality in another function that you call from this one)
-    *  - if the list already has another card, check to see if the two cards match
-    *    + if the cards do match, lock the cards in the open position (put this functionality in another function that you call from this one)
-    *    + if the cards do not match, remove the cards from the list and hide the card's symbol (put this functionality in another function that you call from this one)
-    *    + increment the move counter and display it on the page (put this functionality in another function that you call from this one)
-    *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
+    * Section 2: Functions that are part of the event listener
     */
 
-   function moveCount() {
+
+    // Add event listeners to all cards
+    function evtListener() {
+        debug("evtListener");
+        cards().forEach(function(node) {
+            node.addEventListener('click', cardMagic);
+        })
+    }
+
+    /*
+    * On click increment move count and remove event listener for click target,
+    * open card, add it to array of open card, when array has two items compare them
+    */
+    function cardMagic(a) {
+        debug("cardMagic", a);
+        console.log(this, a);
+        if (cardListOpen.length < 2) {
+            moveCount(a);
+            a.target.removeEventListener('click', cardMagic);
+            flipCard(this);
+            addOpenCard(this);
+            if (cardListOpen.length === 2) {
+                compareCards();
+            }
+        }  
+    }
+
+    // increment move counter in score panel and according to number of moves update star rating
+    function moveCount() {
         debug("moveCount");
         let count = parseInt(document.querySelector('.moves').innerHTML, 10);
         let x = count + 1;
     
         document.querySelector('.moves').innerHTML = x;
+        if (x > 29 && x < 40) {
+            document.querySelector('.stars').childNodes[2].lastChild.setAttribute("class", "fa fa-star-o");
+        }
+        if (x >= 40 && x < 49) {
+            document.querySelector('.stars').childNodes[1].lastChild.setAttribute("class", "fa fa-star-o");
+        }
     }
 
-    function time() {
-        setInterval(function() {
-            let secs = parseInt(document.querySelector('.time').innerHTML, 10);
-            let x = secs +1;
-
-            document.querySelector('.timer').innerHTML = `${x} seconds`
-        }, 1000)
-    }
-
+    // Open card to reveal its symbol
     function flipCard(item) {
         debug("flipCard", item);
         item.setAttribute("class", "card open show");
     }
 
+    // Add clicked target to an (empty) array which stores opened cards
     function addOpenCard(item) {
         debug("addOpenCard", item);
         cardListOpen.push(item);0
     }
 
-    function lockMatch() {
-        debug("lockMatch");
-        cardListOpen[0].setAttribute("class", "card match");
-        cardListOpen[1].setAttribute("class", "card match");
-
-        cardListOpen.forEach(function(i) {
-            cardListMatch.push(i);
-        })
-        cardListOpen.splice(0, 50);
-        checkWinCondition();
-    }
-
-    function cardError() {
-        debug("cardError");
-        cardListOpen.forEach(function(i) {
-            i.setAttribute("class", "card mismatch");
-        });
-        cardListOpen.forEach(function(i) {
-            i.removeEventListener('click', cardMagic);
-        });
-    }
-
-    function closeCards() {
-        debug("closeCards");
-
-        cardListOpen.forEach(function(i) {
-            i.setAttribute("class", "card");
-        })
-    }
-
-    function cards() {
-        debug("cards");
-        return Array.from(document.querySelectorAll('.card'));
-     }
-
-    function listenAgain() {
-        debug("listenAgain");
-        cards().filter(function(card) {
-           return card.className !== "card mismatch";
-        }).forEach(function(item) {
-            item.addEventListener('click', cardMagic);
-        })
-    }
-
-    function removeListeners() {
-        debug("removeListeners");
-        cards().forEach(function(card) {
-            card.removeEventListener('click', cardMagic)
-        })
-    }
-
+    /*
+    * Abort when there is only one item, otherwise remove event listeners while comparing:
+    * when items match, lock them, otherwise set mismatch and after delay return items to closed state,
+    * re-add event listeners to them and empty open card array
+    */  
     function compareCards() {
         debug("compareCards");
 
@@ -241,43 +245,83 @@
         setTimeout(function() {
             closeCards();
             listenAgain();
-            cardListOpen.splice(0, 2);
+            cardListOpen.splice(0, 50);
         }, TIMEOUT)
     }
 
-    function checkWinCondition() {
-        debug("checkWinCondition");
-        if (cardListMatch.length === 16) {
-            window = document.createElement('div');
-            alert(`Yay! You did it in ${document.querySelector('.moves').innerHTML} Moves!`);
-        }
-    }
-
-    function cardMagic(a) {
-        debug("cardMagic", a);
-        console.log(this, a);
-        if (cardListOpen.length < 2) {
-            moveCount(a);
-            a.target.removeEventListener('click', cardMagic);
-            flipCard(this);
-            addOpenCard(this);
-            if (cardListOpen.length === 2) {
-                compareCards();
-            }
-        }  
-    }
-
-    function evtListener() {
-        debug("evtListener");
-        cards().forEach(function(node) {
-            node.addEventListener('click', cardMagic);
+    // removes event listeners for card comparison
+    function removeListeners() {
+        debug("removeListeners");
+        cards().forEach(function(card) {
+            card.removeEventListener('click', cardMagic)
         })
     }
 
+    // When open cards match, push items of open card array into matching card array, empty open card array and check win condition
+    function lockMatch() {
+        debug("lockMatch");
+        cardListOpen[0].setAttribute("class", "card match");
+        cardListOpen[1].setAttribute("class", "card match");
+
+        cardListOpen.forEach(function(i) {
+            cardListMatch.push(i);
+        })
+        cardListOpen.splice(0, 50);
+        checkWinCondition();
+    }
+
+    // When matching card array has 16 items, stop timer and alert win message containing number of moves and seconds
+    function checkWinCondition() {
+        debug("checkWinCondition");
+        if (cardListMatch.length === 16) {
+            stopTime();
+            window = document.createElement('div');
+            window.setAttribute("class", "")
+
+            alert(`Yay! You did it in ${document.querySelector('.moves').innerHTML} Moves and it took you ${document.querySelector('.timer').innerHTML}!`);
+        }
+    }
+
+    // When items in open card array dont match, set mismatch class for items, remove event listeners for items
+    function cardError() {
+        debug("cardError");
+        cardListOpen.forEach(function(i) {
+            i.setAttribute("class", "card mismatch");
+        });
+        cardListOpen.forEach(function(i) {
+            i.removeEventListener('click', cardMagic);
+        });
+    }
+
+    // Set card class for items in open card array to turn them "upside down" again
+    function closeCards() {
+        debug("closeCards");
+
+        cardListOpen.forEach(function(i) {
+            i.setAttribute("class", "card");
+        })
+    }
+
+    // Add event listener back to mismatched cards
+    function listenAgain() {
+        debug("listenAgain");
+        cards().filter(function(card) {
+           return card.className !== "card mismatch";
+        }).forEach(function(item) {
+            item.addEventListener('click', cardMagic);
+        })
+    }
+
+    function cards() {
+        return Array.from(document.querySelectorAll('.card'));
+     }
+
+    //activates restart button, initializes scorepanel and board on page start-up
     restart();
-    createTimer();
     clearBoard();
     resetMoves();
     clearStars();
     createStars();
+    clearTimer();
+    createTimer();
     createBoard();

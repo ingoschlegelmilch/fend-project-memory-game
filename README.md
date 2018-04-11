@@ -1,20 +1,38 @@
-# Memory Game Project
+# Ingo's Memory Game Project
 
 ## Table of Contents
 
 * [Instructions](#instructions)
-* [Contributing](#contributing)
+* [Functionality](#functionality)
+* [Known Issues](#known issues)
 
 ## Instructions
 
-The starter project has some HTML and CSS styling to display a static version of the Memory Game project. You'll need to convert this project from a static project to an interactive one. This will require modifying the HTML and CSS files, but primarily the JavaScript file.
+It's memory! Flip two cards at a time to see if they match!
 
-To get started, open `js/app.js` and start building out the app's functionality
+You'll get a star-rating based on your performance, every click is considered a move.
 
-For specific, detailed instructions, look at the project instructions in the [Udacity Classroom](https://classroom.udacity.com/me).
+## Functionality
 
-## Contributing
+This game is a project for the Udacity Frontend Nano Degree scholarship and uses the pre-styled page provided for it.
 
-This repository is the starter code for _all_ Udacity students. Therefore, we most likely will not accept pull requests.
+I've provided commentary for every function directly in app.js and refactored my code to resemble the order in which things are executed.
 
-For details, check out [CONTRIBUTING.md](CONTRIBUTING.md).
+Basically it generates a board from a hard-coded array (cardList) and adds an event listener to each card which does a number of things based on the number of cards flipped, while using only DOM manipulation:
+
+When the first card is flipped, add this card to an initially empty array (cardListOpen). 
+
+When the second card is flipped, compare the two cards.
+
+Now, there are two possibilities:
+
+* When the two cards DO match, they are pushed into a third array (cardListMatch), which is needed for checking the win condition
+* When they DO NOT match, set them to "card mismatch" to play the error animation and change background color, then return them to the "upside down" state again
+
+After every card comparison the (cardListOpen) array is emptied again, so it can never hold more than two items, whereas the (cardListMatch) array stores all matches until its .length equals 16 (which means if all cards are solved -> WIN)
+
+## Known Issues
+
+* When you restart the game, the incTime functions seem to add up, so, the more you restart, the faster the clock is ticking
+* Upon winning the game, the game timer currently doesn't stop
+* Winning the game currently does not provide you with a win screen, but an alert message (so there is no play again button, yet)
