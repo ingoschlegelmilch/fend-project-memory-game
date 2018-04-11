@@ -35,4 +35,3 @@ After every card comparison the (cardListOpen) array is emptied again, so it can
 
 * When you restart the game, the incTime functions seem to add up, so, the more you restart, the faster the clock is ticking
 * Upon winning the game, the game timer currently doesn't stop
-* Winning the game currently does not provide you with a win screen, but an alert message (so there is no play again button, yet)
